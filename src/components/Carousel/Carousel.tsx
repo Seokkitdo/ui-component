@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled/macro';
 import { css } from '@emotion/react';
 import { RiArrowDropLeftLine, RiArrowDropRightLine } from 'react-icons/ri'
@@ -67,35 +67,68 @@ const Nav = styled.ul`
     }
 `
 
-const banners = ['https://unsplash.com/photos/78A265wPiO4', 'https://unsplash.com/photos/01_igFr7hd4', 'https://unsplash.com/photos/eOpewngf68w'];
+const banners = ['https://source.unsplash.com/random', 'https://source.unsplash.com/random', 'https://source.unsplash.com/random'];
 
 const Carousel: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number>(0);
+    const [isFocused, setIsFocused] = useState<boolean>(false)
+
+    const handleNext = () => {
+        setActiveIndex(prev => (prev + 1) % banners.length);
+    }
+
+    const handlePrev = () => {
+        setActiveIndex(prev => (prev - 1 + banners.length))
+    }
+
+    const goTo = (idx: number) => {
+        setActiveIndex(idx);
+    }
+
+    const handleMoustEnter = () => {
+        setIsFocused(true);
+    }
+
+    const handleMoustLeave = () => {
+        setIsFocused(false);
+    }
+
+    useEffect(() => {
+        let intervalId: NodeJS.Timeout;
+        
+        if(!isFocused) {
+            intervalId = setInterval(handleNext, 3000);
+        }
+
+        return () => {
+            clearInterval(intervalId);
+        }
+    }, [isFocused])
 
 
     return (
-        <Base>
+        <Base onMouseEnter={handleMoustEnter} onMouseLeave={handleMoustLeave}>
             <Container>
-                <ArrowButton>
+                <ArrowButton pos="left" onClick={handlePrev}>
                     <RiArrowDropLeftLine />
                 </ArrowButton>
                 <CarouselList>
                     {
                         banners.map((banner, idx) => (
-                            <CarouselListItem key={idx}>
-                                <img src={banner} alt='nature' />
+                            <CarouselListItem activeIndex={activeIndex} key={idx}>
+                                <img src={banner} alt='nature' style={{ width: '100vw', height: '100vh' }} />
                             </CarouselListItem>
                         ))
                     }
                 </CarouselList>
-                <ArrowButton>
+                <ArrowButton pos="right" onClick={handleNext}>
                     <RiArrowDropRightLine />
                 </ArrowButton>
             </Container>
             <Nav>
                 {
                     Array.from({ length: banners.length }).map((_, idx) => (
-                        <NavItem key={idx}>
+                        <NavItem key={idx} onClick={() => goTo(idx)}>
                             <NavButton isActive={activeIndex === idx} />
                         </NavItem>
                     ))
