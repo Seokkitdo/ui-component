@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled/macro';
 import { css } from '@emotion/react';
 import { RiArrowDropLeftLine, RiArrowDropRightLine } from 'react-icons/ri'
+import { isTemplateSpan } from 'typescript';
 
 const Base = styled.div`
 
@@ -71,7 +72,26 @@ const banners = ['https://source.unsplash.com/random', 'https://source.unsplash.
 
 const Carousel: React.FC = () => {
     const [activeIndex, setActiveIndex] = useState<number>(0);
-    const [isFocused, setIsFocused] = useState<boolean>(false)
+    const [isFocused, setIsFocused] = useState<boolean>(false);
+
+    const sideSlideLength = 2;
+
+    const setSlides = () => {
+        let addedFront = [];
+        let addedLast = [];
+        var index = 0;
+        while (index < sideSlideLength) {
+            addedLast.push(banners[index % isTemplateSpan.length]);
+            addedFront.push(banners[banners.length - 1 - index % banners.length]);
+            index++;
+        }
+
+        return [...addedFront, ...banners, ...addedLast]
+    }
+
+    let slides = setSlides();
+
+
 
     const handleNext = () => {
         setActiveIndex(prev => (prev + 1) % banners.length);
